@@ -5,16 +5,19 @@ const path = require("path");
 const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
-  publicPath: isProduction ? "" : "",
+  publicPath: isProduction ? "/" : "/",
   // eslint-loader 是否在保存的时候检验?
   lintOnSave: false,
   devServer: {
     port: 8080,
     open: true,
     disableHostCheck: true,
+    historyApiFallback: true,
     proxy: {
       "/": {
         target: `http://192.168.0.3:9999`,
+        ws: true,
+        changeOrigin: true,
       },
     },
   },
@@ -31,10 +34,7 @@ module.exports = {
         modifyVars: {
           // 直接覆盖变量
           // 或者可以通过 less 文件覆盖（文件路径为绝对路径）
-          hack: `true; @import "${path.resolve(
-            __dirname,
-            "./src/assets/css/custom_theme.less"
-          )}";`,
+          hack: `true; @import "${path.resolve(__dirname, "./src/assets/css/custom_theme.less")}";`,
         },
       },
       postcss: {

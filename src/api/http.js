@@ -36,7 +36,7 @@ class Service {
     // 返回拦截
     instance.interceptors.response.use(
       async (response) => {
-        if (response.status === 200 && response.data.code === 0) {
+        if (response.status === 200) {
           // code为0则正常处理
           await new Promise((resolve) => setTimeout(resolve, 500)); // 延迟一下
           return Promise.resolve(response);

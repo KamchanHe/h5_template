@@ -27,6 +27,12 @@ export const constantRoutes = [
     component: Home,
     // component: () => import(/* webpackChunkName: "about" */ "../views/Home.vue"),
   },
+  {
+    path: "/404",
+    name: "Page404",
+    component: () => import(/* webpackChunkName: "404" */ "../views/404.vue"),
+  },
+  { path: "*", redirect: "/404", hidden: true },
 ];
 
 // 权限路由
@@ -35,19 +41,28 @@ export const asyncRoutes = [
   { path: "*", redirect: "/404", hidden: true },
 ];
 
-const routes = [
-  {
-    path: "/",
-    name: "Home",
-    component: Home,
-    // component: () => import(/* webpackChunkName: "about" */ "../views/Home.vue"),
-  },
-];
+/**
+ * 解决 Error: Redirected when going from "/userCenter" to "/editInfo" via a navigation guard. 的问题
+ * @param {void}
+ * @return {void}
+ */
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location, onResolve, onReject) {
+  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject);
+  return originalPush.call(this, location).catch((err) => err);
+};
 
-const router = new VueRouter({
-  mode: "history",
-  base: process.env.BASE_URL,
-  routes,
-});
+const createRouter = () =>
+  new VueRouter({
+    mode: "history",
+    routes: constantRoutes,
+  });
 
+const router = createRouter();
+
+// 动态添加路由
+router.$addRoutes = (params) => {
+  router.matcher = createRouter().matcher; // 重置路由 防止重复添加
+  router.addRoutes(params); // 添加路由
+};
 export default router;
